@@ -5,13 +5,13 @@ Simple HTTP file server written in Go
 - List all files
 
 ```bash
-curl -O localhost:8080/filetree
+curl -O http://localhost:8080/filetree
 ```
 
 - Upload a file
 
 ```bash
-curl -F "file=@/path/to/file" localhost:8080/upload
+curl -X POST -F "file=@/path/to/file" http://localhost:8080/upload
 ```
 
 # TODO
