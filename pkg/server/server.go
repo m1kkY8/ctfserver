@@ -118,7 +118,8 @@ func (s *Server) setupRoutes() *mux.Router {
 	apiRouter.Handle("/uploads", uploadsListHandler).Methods("GET")
 
 	// Short alias for uploads list
-	apiRouter.Handle("/ul", uploadsListHandler).Methods("GET") // Short alias for uploads list
+	apiRouter.Handle("/ul", uploadsListHandler).Methods("GET")   // Short alias for uploads list
+	apiRouter.Handle("/loot", uploadsListHandler).Methods("GET") // Short alias for uploads list
 
 	// Static file server for downloads
 	fs := http.StripPrefix("/files/", http.FileServer(http.Dir(s.config.RootDir)))

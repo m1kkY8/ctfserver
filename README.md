@@ -300,7 +300,7 @@ curl -O http://localhost:8080/filetree
 - Upload a file
 
 ```bash
-curl -X POST -F "file=@/path/to/file" http://localhost:8080/upload
+curl -X POST -F "file=@/path/to/file" http://localhost:8080/api/v1/upload
 ```
 
 # TODO
