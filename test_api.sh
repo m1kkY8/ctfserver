@@ -101,9 +101,44 @@ test_upload() {
     echo
 }
 
+# Function to test uploads list endpoint
+test_uploads_list() {
+    echo "5. Testing uploads list endpoint..."
+    
+    # Test default plain text response
+    echo "   Default format (plain text):"
+    text_response=$(curl -s "$API_URL/uploads")
+    echo "$text_response" | head -5
+    if echo "$text_response" | grep -q -E "(Uploaded Files|No uploaded files found)"; then
+        echo "   ✅ Uploads list default (text) test passed"
+    else
+        echo "   ❌ Uploads list default (text) test failed"
+    fi
+    
+    # Test JSON response with parameter
+    echo "   JSON format (with ?format=json):"
+    response=$(curl -s "$API_URL/uploads?format=json")
+    if echo "$response" | jq -e '.success == true and .count >= 0' > /dev/null 2>&1; then
+        echo "   ✅ Uploads list JSON test passed"
+        
+        # Show uploaded files count
+        count=$(echo "$response" | jq -r '.count')
+        echo "   Found $count uploaded file(s)"
+        
+        # Show file names if any
+        if [ "$count" -gt 0 ]; then
+            echo "   Files:"
+            echo "$response" | jq -r '.files[].name' | sed 's/^/     - /'
+        fi
+    else
+        echo "   ❌ Uploads list JSON test failed"
+    fi
+    echo
+}
+
 # Function to test file download
 test_download() {
-    echo "5. Testing file download..."
+    echo "6. Testing file download..."
     
     # Try to download a file from the test directory
     if curl -s "$SERVER_URL/files/readme.txt" | grep -q "This is a test file"; then
@@ -124,6 +159,7 @@ if check_server; then
     test_filetree
     test_pretty_filetree
     test_upload
+    test_uploads_list
     test_download
     
     echo "=== Test completed ==="

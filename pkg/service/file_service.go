@@ -101,3 +101,85 @@ func (fs *FileService) UploadFile(fileHeader *multipart.FileHeader, file multipa
 		Path:     dstPath,
 	}, nil
 }
+
+// ListUploads returns a list of all uploaded files
+func (fs *FileService) ListUploads() (*models.UploadsListResponse, error) {
+	// Ensure upload directory exists
+	if err := util.EnsureDir(fs.uploadDir); err != nil {
+		return &models.UploadsListResponse{
+			Success: false,
+			Error:   "Failed to access upload directory",
+			Count:   0,
+		}, nil
+	}
+
+	// Read directory contents
+	entries, err := os.ReadDir(fs.uploadDir)
+	if err != nil {
+		return &models.UploadsListResponse{
+			Success: false,
+			Error:   "Failed to read upload directory",
+			Count:   0,
+		}, nil
+	}
+
+	var files []models.UploadedFileInfo
+	for _, entry := range entries {
+		// Skip directories and hidden files
+		if entry.IsDir() || entry.Name()[0] == '.' {
+			continue
+		}
+
+		// Get file info
+		info, err := entry.Info()
+		if err != nil {
+			continue // Skip files we can't read
+		}
+
+		files = append(files, models.UploadedFileInfo{
+			Name:      info.Name(),
+			Size:      info.Size(),
+			ModTime:   info.ModTime(),
+			SizeHuman: util.FormatFileSize(info.Size()),
+		})
+	}
+
+	return &models.UploadsListResponse{
+		Success: true,
+		Files:   files,
+		Count:   len(files),
+	}, nil
+}
+
+// GetPrettyUploadsList returns a pretty formatted list of uploaded files
+func (fs *FileService) GetPrettyUploadsList() (string, *models.UploadsListResponse, error) {
+	result, err := fs.ListUploads()
+	if err != nil {
+		return "", result, err
+	}
+
+	if !result.Success {
+		return "", result, nil
+	}
+
+	// Generate pretty text format
+	var prettyText string
+	if result.Count == 0 {
+		prettyText = "No uploaded files found.\n"
+	} else {
+		prettyText = fmt.Sprintf("Uploaded Files (%d):\n", result.Count)
+		for i, file := range result.Files {
+			connector := "├── "
+			if i == len(result.Files)-1 {
+				connector = "└── "
+			}
+			prettyText += fmt.Sprintf("%s%s (%s) - %s\n",
+				connector,
+				file.Name,
+				file.SizeHuman,
+				file.ModTime.Format("2006-01-02 15:04:05"))
+		}
+	}
+
+	return prettyText, result, nil
+}

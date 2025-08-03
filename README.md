@@ -149,6 +149,39 @@ Response:
 }
 ```
 
+### Uploads List
+
+List all uploaded files (defaults to human-readable format):
+
+```bash
+GET /api/v1/uploads
+GET /api/v1/ul        # Short alias
+```
+
+Plain text response (default):
+```
+Uploaded Files (3):
+├── exploit.py (2.1 KB) - 2025-08-04 10:30:15
+├── payload.sh (856 B) - 2025-08-04 10:25:42
+└── data.zip (1.2 MB) - 2025-08-04 10:20:10
+```
+
+JSON response (with `?format=json` or `Accept: application/json`):
+```json
+{
+  "success": true,
+  "files": [
+    {
+      "name": "exploit.py",
+      "size": 2148,
+      "mod_time": "2025-08-04T10:30:15Z",
+      "size_human": "2.1 KB"
+    }
+  ],
+  "count": 3
+}
+```
+
 ### File Download
 
 Download files via static file serving:
@@ -191,8 +224,14 @@ curl http://localhost:8080/api/v1/tree
 # Short Unix-style alias
 curl http://localhost:8080/api/v1/ls
 
-# Get human-readable tree as JSON
-curl "http://localhost:8080/api/v1/tree?format=json" | jq -r '.tree_string'
+# List uploaded files (human-readable, default)
+curl http://localhost:8080/api/v1/uploads
+
+# Short alias for uploads
+curl http://localhost:8080/api/v1/ul
+
+# Get uploads as JSON
+curl "http://localhost:8080/api/v1/uploads?format=json" | jq .
 
 # Get health status
 curl http://localhost:8080/api/v1/health

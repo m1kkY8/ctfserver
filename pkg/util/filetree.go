@@ -88,8 +88,8 @@ func generatePrettyTreeRecursive(children []models.FileInfo, prefix string, buil
 	}
 }
 
-// formatFileSize converts bytes to human-readable format
-func formatFileSize(bytes int64) string {
+// FormatFileSize converts bytes to human-readable format
+func FormatFileSize(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {
 		return fmt.Sprintf("%d B", bytes)
@@ -100,6 +100,11 @@ func formatFileSize(bytes int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
+}
+
+// formatFileSize is the internal version for backwards compatibility
+func formatFileSize(bytes int64) string {
+	return FormatFileSize(bytes)
 }
 
 // EnsureDir creates a directory if it doesn't exist

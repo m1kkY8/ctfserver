@@ -36,6 +36,22 @@ type UploadResponse struct {
 	Error    string `json:"error,omitempty"`
 }
 
+// UploadedFileInfo represents information about an uploaded file
+type UploadedFileInfo struct {
+	Name      string    `json:"name"`
+	Size      int64     `json:"size"`
+	ModTime   time.Time `json:"mod_time"`
+	SizeHuman string    `json:"size_human"`
+}
+
+// UploadsListResponse represents the response for uploads list API
+type UploadsListResponse struct {
+	Success bool               `json:"success"`
+	Files   []UploadedFileInfo `json:"files,omitempty"`
+	Count   int                `json:"count"`
+	Error   string             `json:"error,omitempty"`
+}
+
 // ErrorResponse represents a generic error response
 type ErrorResponse struct {
 	Success bool   `json:"success"`
