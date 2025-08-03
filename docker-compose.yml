@@ -2,13 +2,13 @@ services:
   ctfserver:
     build: .
     ports:
-      - "8080:8080"
+      - "80:80"
     volumes:
       - ./files:/root/files:ro
       - ./uploads:/root/uploads
     environment:
       - CTF_HOST=0.0.0.0
-      - CTF_PORT=8080
+      - CTF_PORT=80
       - CTF_ROOT_DIR=/root/files
       - CTF_UPLOAD_DIR=/root/uploads
       - CTF_LOG_LEVEL=info

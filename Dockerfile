@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24.1-alpine AS builder
 
 WORKDIR /app
 
@@ -30,11 +30,11 @@ COPY --from=builder /app/ctfserver .
 RUN mkdir -p uploads files
 
 # Expose port
-EXPOSE 8080
+EXPOSE 80
 
 # Set environment variables
 ENV CTF_HOST=0.0.0.0
-ENV CTF_PORT=8080
+ENV CTF_PORT=80
 ENV CTF_ROOT_DIR=/root/files
 ENV CTF_UPLOAD_DIR=/root/uploads
 ENV CTF_LOG_LEVEL=info
