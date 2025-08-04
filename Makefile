@@ -46,6 +46,29 @@ build-all:
 	GOOS=windows GOARCH=amd64 go build -o ctfserver-windows-amd64.exe
 	GOOS=darwin GOARCH=amd64 go build -o ctfserver-darwin-amd64
 
+# Docker commands
+docker-setup:
+	./setup.sh
+
+docker-build:
+	UID=$$(id -u) GID=$$(id -g) docker-compose build
+
+docker-up:
+	UID=$$(id -u) GID=$$(id -g) docker-compose up -d
+
+docker-down:
+	docker-compose down
+
+docker-logs:
+	docker-compose logs -f ctfserver
+
+docker-test:
+	./test_docker.sh
+
+docker-clean:
+	docker-compose down -v
+	docker image prune -f
+
 help:
 	@echo "Available commands:"
 	@echo "  build      - Build the application"
@@ -58,4 +81,13 @@ help:
 	@echo "  lint       - Run linter"
 	@echo "  setup-dev  - Create test directories and files"
 	@echo "  build-all  - Build for multiple platforms"
-	@echo "  help       - Show this help message"
+	@echo ""
+	@echo "Docker commands:"
+	@echo "  docker-setup  - Setup /opt directories with proper permissions"
+	@echo "  docker-build  - Build Docker image"
+	@echo "  docker-up     - Start container"
+	@echo "  docker-down   - Stop container"
+	@echo "  docker-logs   - View container logs"
+	@echo "  docker-test   - Test Docker setup"
+	@echo "  docker-clean  - Clean Docker resources"
+	@echo "  help          - Show this help message"

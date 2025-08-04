@@ -27,6 +27,30 @@ go build -o ctfserver
 ./ctfserver -host 0.0.0.0 -port 8080 -root ./files -upload-dir ./uploads
 ```
 
+### Docker Deployment
+
+For production or isolated environments, use Docker:
+
+```bash
+# Setup directories with proper permissions
+./setup.sh
+
+# Start the container
+UID=$(id -u) GID=$(id -g) docker-compose up -d
+
+# Check logs
+docker-compose logs -f
+
+# Stop the container
+docker-compose down
+```
+
+The Docker setup uses:
+- `/opt/tools` - Directory for files available for download
+- `/opt/loot` - Directory for uploaded files
+- Port 80 (instead of 8080)
+- Proper user permissions to avoid root ownership issues
+
 ### Configuration
 
 The server can be configured via environment variables or command-line flags:
@@ -287,22 +311,85 @@ ctfserver/
 
 ## License
 
-This project is designed for educational and CTF purposes. Use responsibly.e server written in Go
+This project is designed for educational and CTF purposes. Use responsibly.
 
-## Usage
+## Docker Usage
 
-- List all files
+### Quick Start with Docker
 
+1. **Setup directories**:
+   ```bash
+   ./setup.sh
+   ```
+
+2. **Start the server**:
+   ```bash
+   UID=$(id -u) GID=$(id -g) docker-compose up -d
+   ```
+
+3. **Add files for download**:
+   ```bash
+   # Copy tools to the download directory
+   cp /path/to/your/tools/* /opt/tools/
+   
+   # Example: Add common CTF tools
+   cp /usr/bin/nmap /opt/tools/
+   cp /path/to/linpeas.sh /opt/tools/
+   ```
+
+4. **Access the server**:
+   ```bash
+   # List available files
+   curl http://localhost/api/v1/tree
+   
+   # Upload a file
+   curl -X POST -F "file=@data.txt" http://localhost/api/v1/upload
+   
+   # List uploaded files
+   curl http://localhost/api/v1/ul
+   ```
+
+5. **Check uploaded files**:
+   ```bash
+   ls -la /opt/loot/
+   ```
+
+### Docker Environment Variables
+
+The Docker setup uses these environment variables (all configurable in `docker-compose.yml`):
+
+- `CTF_HOST=0.0.0.0` - Bind to all interfaces
+- `CTF_PORT=80` - Run on port 80
+- `CTF_ROOT_DIR=/opt/tools` - Files available for download
+- `CTF_UPLOAD_DIR=/opt/loot` - Uploaded files destination
+- `CTF_LOG_LEVEL=info` - Logging level
+
+### Volume Permissions
+
+The setup script ensures that:
+- `/opt/tools` and `/opt/loot` are owned by your user
+- The container runs as your user (not root)
+- Files created by the container are accessible without sudo
+
+### Troubleshooting Docker
+
+**Permission denied errors**:
 ```bash
-curl -O http://localhost:8080/filetree
+# Re-run the setup script
+./setup.sh
+
+# Check ownership
+ls -la /opt/tools /opt/loot
+
+# If needed, fix manually
+sudo chown -R $(id -u):$(id -g) /opt/tools /opt/loot
 ```
 
-- Upload a file
-
+**Container not starting**:
 ```bash
-curl -X POST -F "file=@/path/to/file" http://localhost:8080/api/v1/upload
+# Check logs
+docker-compose logs ctfserver
+
+# Rebuild if needed
+docker-compose build --no-cache
 ```
-
-# TODO
-
-- [ ] Add HTTPS
